@@ -1,8 +1,71 @@
 "use client"
 
 import { ArrowRight, Menu, X, CheckCircle, Star, Users, Zap } from "lucide-react"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
+
+// Add CSS animations for the button and random brain effects
+const buttonStyles = `
+  @keyframes colorShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  @keyframes morph {
+    0% { border-radius: 1.5rem; transform: scale(1.1) rotate(2deg); }
+    25% { border-radius: 2rem; transform: scale(1.15) rotate(-1deg); }
+    50% { border-radius: 1rem; transform: scale(1.2) rotate(3deg); }
+    75% { border-radius: 2.5rem; transform: scale(1.1) rotate(-2deg); }
+    100% { border-radius: 1.5rem; transform: scale(1.1) rotate(2deg); }
+  }
+
+  @keyframes morphBrain {
+    0% { border-radius: 50% 40% 60% 30%; transform: scale(1) rotate(0deg); }
+    25% { border-radius: 40% 60% 30% 50%; transform: scale(1.1) rotate(90deg); }
+    50% { border-radius: 60% 30% 50% 40%; transform: scale(0.9) rotate(180deg); }
+    75% { border-radius: 30% 50% 40% 60%; transform: scale(1.05) rotate(270deg); }
+    100% { border-radius: 50% 40% 60% 30%; transform: scale(1) rotate(360deg); }
+  }
+
+  @keyframes pulseCore {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.8; }
+  }
+
+  @keyframes floatParticle1 {
+    0% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+    33% { transform: translateY(-20px) translateX(10px) rotate(120deg); }
+    66% { transform: translateY(10px) translateX(-15px) rotate(240deg); }
+    100% { transform: translateY(0px) translateX(0px) rotate(360deg); }
+  }
+
+  @keyframes floatParticle2 {
+    0% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+    25% { transform: translateY(-15px) translateX(-10px) rotate(90deg); }
+    50% { transform: translateY(20px) translateX(15px) rotate(180deg); }
+    75% { transform: translateY(-5px) translateX(-20px) rotate(270deg); }
+    100% { transform: translateY(0px) translateX(0px) rotate(360deg); }
+  }
+
+  @keyframes floatParticle3 {
+    0% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+    40% { transform: translateY(-25px) translateX(20px) rotate(144deg); }
+    80% { transform: translateY(15px) translateX(-25px) rotate(288deg); }
+    100% { transform: translateY(0px) translateX(0px) rotate(360deg); }
+  }
+
+  @keyframes randomChaos {
+    0% { filter: hue-rotate(0deg) saturate(1.1) brightness(1); }
+    16% { filter: hue-rotate(60deg) saturate(1.3) brightness(1.1); }
+    33% { filter: hue-rotate(120deg) saturate(0.9) brightness(0.9); }
+    50% { filter: hue-rotate(180deg) saturate(1.2) brightness(1.05); }
+    66% { filter: hue-rotate(240deg) saturate(0.8) brightness(1.1); }
+    83% { filter: hue-rotate(300deg) saturate(1.4) brightness(0.95); }
+    100% { filter: hue-rotate(360deg) saturate(1.1) brightness(1); }
+  }
+`
 
 export default function HomePage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
