@@ -1,4 +1,4 @@
-# Core FastAPI dependencies
+# Essential FastAPI dependencies only
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 sqlalchemy==2.0.23
@@ -7,18 +7,14 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.6
 
-# Data science and ML - use pre-compiled wheels
-pandas==2.0.3
+# Basic data science - minimal versions
+pandas==1.5.3
 numpy==1.24.3
 scikit-learn==1.3.2
 joblib==1.3.2
 
-# Utilities
+# Core utilities
 loguru==0.7.2
 pydantic==2.4.2
 pydantic-settings==2.0.3
 python-dotenv==1.0.0
-
-# Additional dependencies for compatibility
-wheel
-setuptools
