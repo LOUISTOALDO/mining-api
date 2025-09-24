@@ -274,6 +274,22 @@ class DatabaseOptimizer:
         
         return results
 
+    def _validate_columns_exist(self, table_name: str, columns: List[str]) -> bool:
+        """Check if required columns exist in the table."""
+        try:
+            # Get table info from SQLite
+            result = self.db.execute(text(f"PRAGMA table_info({table_name})"))
+            existing_columns = [row[1] for row in result.fetchall()]
+            
+            for column in columns:
+                if column not in existing_columns:
+                    logger.warning(f"Column {column} not found in table {table_name}")
+                    return False
+            return True
+        except Exception as e:
+            logger.error(f"Error validating columns for {table_name}: {e}")
+            return False
+
 def create_all_indexes(db: Session) -> Dict[str, Any]:
     """Convenience function to create all performance indexes."""
     optimizer = DatabaseOptimizer(db)

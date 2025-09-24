@@ -36,6 +36,16 @@ class CacheService:
             logger.warning(f"Redis not available, running without cache: {e}")
             self.redis_client = None
     
+    def is_available(self) -> bool:
+        """Check if Redis is available."""
+        if not self.redis_client:
+            return False
+        try:
+            self.redis_client.ping()
+            return True
+        except:
+            return False
+    
     def _generate_cache_key(self, prefix: str, *args, **kwargs) -> str:
         """Generate a consistent cache key from arguments."""
         # Create a hash of all arguments
