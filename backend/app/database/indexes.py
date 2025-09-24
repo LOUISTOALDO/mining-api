@@ -22,100 +22,136 @@ class DatabaseOptimizer:
             {
                 "name": "idx_telemetry_machine_timestamp",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_telemetry_machine_timestamp ON telemetry(machine_id, timestamp DESC)",
-                "description": "Optimizes queries filtering by machine and time range"
+                "description": "Optimizes queries filtering by machine and time range",
+                "table": "telemetry",
+                "required_columns": ["machine_id", "timestamp"]
             },
             {
                 "name": "idx_telemetry_timestamp",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_telemetry_timestamp ON telemetry(timestamp DESC)",
-                "description": "Optimizes time-based queries and sorting"
+                "description": "Optimizes time-based queries and sorting",
+                "table": "telemetry",
+                "required_columns": ["timestamp"]
             },
             {
                 "name": "idx_telemetry_machine_id",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_telemetry_machine_id ON telemetry(machine_id)",
-                "description": "Optimizes machine-specific queries"
+                "description": "Optimizes machine-specific queries",
+                "table": "telemetry",
+                "required_columns": ["machine_id"]
             },
             {
                 "name": "idx_telemetry_temperature",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_telemetry_temperature ON telemetry(temperature)",
-                "description": "Optimizes temperature-based filtering and alerts"
+                "description": "Optimizes temperature-based filtering and alerts",
+                "table": "telemetry",
+                "required_columns": ["temperature"]
             },
             {
                 "name": "idx_telemetry_vibration",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_telemetry_vibration ON telemetry(vibration)",
-                "description": "Optimizes vibration-based filtering and alerts"
+                "description": "Optimizes vibration-based filtering and alerts",
+                "table": "telemetry",
+                "required_columns": ["vibration"]
             },
             
             # Machine table indexes
             {
                 "name": "idx_machines_site",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_machines_site ON machines(site)",
-                "description": "Optimizes site-based machine queries"
+                "description": "Optimizes site-based machine queries",
+                "table": "machines",
+                "required_columns": ["site"]
             },
             {
                 "name": "idx_machines_model",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_machines_model ON machines(model)",
-                "description": "Optimizes model-based machine queries"
+                "description": "Optimizes model-based machine queries",
+                "table": "machines",
+                "required_columns": ["model"]
             },
             {
                 "name": "idx_machines_site_model",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_machines_site_model ON machines(site, model)",
-                "description": "Optimizes combined site and model queries"
+                "description": "Optimizes combined site and model queries",
+                "table": "machines",
+                "required_columns": ["site", "model"]
             },
             {
                 "name": "idx_machines_machine_id",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_machines_machine_id ON machines(machine_id)",
-                "description": "Optimizes machine ID lookups"
+                "description": "Optimizes machine ID lookups",
+                "table": "machines",
+                "required_columns": ["machine_id"]
             },
             
             # Prediction table indexes
             {
                 "name": "idx_predictions_machine_timestamp",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_predictions_machine_timestamp ON predictions(machine_id, timestamp DESC)",
-                "description": "Optimizes prediction history queries"
+                "description": "Optimizes prediction history queries",
+                "table": "predictions",
+                "required_columns": ["machine_id", "timestamp"]
             },
             {
                 "name": "idx_predictions_timestamp",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_predictions_timestamp ON predictions(timestamp DESC)",
-                "description": "Optimizes time-based prediction queries"
+                "description": "Optimizes time-based prediction queries",
+                "table": "predictions",
+                "required_columns": ["timestamp"]
             },
             {
                 "name": "idx_predictions_health_score",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_predictions_health_score ON predictions(health_score)",
-                "description": "Optimizes health score filtering and alerts"
+                "description": "Optimizes health score filtering and alerts",
+                "table": "predictions",
+                "required_columns": ["health_score"]
             },
             
             # User and authentication indexes
             {
                 "name": "idx_users_username",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)",
-                "description": "Optimizes username lookups for authentication"
+                "description": "Optimizes username lookups for authentication",
+                "table": "users",
+                "required_columns": ["username"]
             },
             {
                 "name": "idx_users_email",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)",
-                "description": "Optimizes email lookups for authentication"
+                "description": "Optimizes email lookups for authentication",
+                "table": "users",
+                "required_columns": ["email"]
             },
             {
                 "name": "idx_users_company_id",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_users_company_id ON users(company_id)",
-                "description": "Optimizes company-based user queries"
+                "description": "Optimizes company-based user queries",
+                "table": "users",
+                "required_columns": ["company_id"]
             },
             
             # Alert table indexes
             {
                 "name": "idx_alerts_machine_timestamp",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_alerts_machine_timestamp ON alerts(machine_id, timestamp DESC)",
-                "description": "Optimizes machine-specific alert queries"
+                "description": "Optimizes machine-specific alert queries",
+                "table": "alerts",
+                "required_columns": ["machine_id", "timestamp"]
             },
             {
                 "name": "idx_alerts_status",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_alerts_status ON alerts(status)",
-                "description": "Optimizes alert status filtering"
+                "description": "Optimizes alert status filtering",
+                "table": "alerts",
+                "required_columns": ["status"]
             },
             {
                 "name": "idx_alerts_severity",
                 "sql": "CREATE INDEX IF NOT EXISTS idx_alerts_severity ON alerts(severity)",
-                "description": "Optimizes alert severity filtering"
+                "description": "Optimizes alert severity filtering",
+                "table": "alerts",
+                "required_columns": ["severity"]
             }
         ]
         
@@ -128,24 +164,45 @@ class DatabaseOptimizer:
         for index in indexes:
             try:
                 # Check if table exists before creating index
-                table_name = index["sql"].split("ON ")[1].split("(")[0].strip()
+                table_name = index["table"]
                 check_table_sql = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'"
                 table_exists = self.db.execute(text(check_table_sql)).fetchone()
                 
-                if table_exists:
-                    self.db.execute(text(index["sql"]))
-                    self.db.commit()
-                    results["created"].append({
+                if not table_exists:
+                    results["failed"].append({
                         "name": index["name"],
-                        "description": index["description"]
+                        "error": f"Table {table_name} does not exist"
                     })
-                    logger.info(f"Created index: {index['name']}")
-                else:
-                    results["skipped"].append({
+                    logger.warning(f"Skipped index {index['name']}: Table {table_name} does not exist")
+                    continue
+                
+                # Check if required columns exist
+                missing_columns = []
+                for column in index["required_columns"]:
+                    check_column_sql = f"PRAGMA table_info({table_name})"
+                    columns_info = self.db.execute(text(check_column_sql)).fetchall()
+                    column_names = [col[1] for col in columns_info]  # Column name is at index 1
+                    
+                    if column not in column_names:
+                        missing_columns.append(column)
+                
+                if missing_columns:
+                    results["failed"].append({
                         "name": index["name"],
-                        "reason": f"Table {table_name} does not exist"
+                        "error": f"Missing columns: {', '.join(missing_columns)}"
                     })
-                    logger.info(f"Skipped index {index['name']}: Table {table_name} does not exist")
+                    logger.warning(f"Skipped index {index['name']}: Missing columns {missing_columns}")
+                    continue
+                
+                # Create the index
+                self.db.execute(text(index["sql"]))
+                self.db.commit()
+                results["created"].append({
+                    "name": index["name"],
+                    "description": index["description"]
+                })
+                logger.info(f"Created index: {index['name']}")
+                
             except Exception as e:
                 results["failed"].append({
                     "name": index["name"],

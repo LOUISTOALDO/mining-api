@@ -24,12 +24,12 @@ class CacheService:
                 port=port, 
                 db=db, 
                 decode_responses=False,  # Keep binary for pickle
-                socket_connect_timeout=2,
-                socket_timeout=2,
+                socket_connect_timeout=1,  # Reduced timeout
+                socket_timeout=1,  # Reduced timeout
                 retry_on_timeout=False,
                 health_check_interval=30
             )
-            # Test connection
+            # Test connection with very short timeout
             self.redis_client.ping()
             logger.info("Redis cache connection established")
         except Exception as e:
