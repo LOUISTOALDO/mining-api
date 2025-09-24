@@ -72,18 +72,40 @@ except ImportError:
     User = None
     Alert = None
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
-create_tables()
+# Database tables will be created in lifespan startup
 
-# Initialize all system improvements
-try:
-    db_session = next(get_db())
-    initialize_all_systems(db_session)
-    print("✅ All system improvements initialized successfully!")
-except Exception as e:
-    print(f"⚠️ Warning: Could not initialize all systems: {e}")
-    print("System will continue with basic functionality.")
+# FastAPI lifespan handler
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Handle application startup and shutdown."""
+    # Startup
+    logger.info("🚀 Starting Mining AI Platform API...")
+    
+    try:
+        # Create database tables
+        logger.info("Creating database tables...")
+        Base.metadata.create_all(bind=engine)
+        create_tables()
+        logger.info("Database tables created successfully")
+        
+        # Initialize system improvements
+        logger.info("Initializing system improvements...")
+        db_session = next(get_db())
+        initialize_all_systems(db_session)
+        logger.info("✅ All system improvements initialized successfully!")
+        print("✅ All system improvements initialized successfully!")
+        
+    except Exception as e:
+        logger.warning(f"Could not initialize all systems: {e}")
+        print(f"⚠️ Warning: Could not initialize all systems: {e}")
+        print("System will continue with basic functionality.")
+    
+    yield
+    
+    # Shutdown
+    logger.info("🛑 Shutting down Mining AI Platform API...")
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -93,6 +115,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
+    lifespan=lifespan,
     swagger_ui_parameters={
         "tryItOutEnabled": True,
         "requestSnippetsEnabled": True,
