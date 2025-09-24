@@ -2,8 +2,8 @@ services:
   - type: web
     name: mining-ai-platform-api
     env: python
-    buildCommand: pip install --upgrade pip && pip install --only-binary=all --no-deps -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT --workers 1
+    buildCommand: pip install --upgrade pip && pip install --prefer-binary -r requirements.txt
+            startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT --workers 1
     envVars:
       - key: ENVIRONMENT
         value: production
