@@ -3,10 +3,10 @@ services:
     name: mining-pdm-api
     env: python
     buildCommand: pip install --upgrade pip && pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
     envVars:
       - key: PYTHON_VERSION
-        value: 3.11.0
+        value: 3.12.0
       - key: ENVIRONMENT
         value: production
       - key: SECRET_KEY
@@ -16,6 +16,6 @@ services:
       - key: CORS_ORIGINS
         value: https://mining-ai-website.vercel.app,http://localhost:3000
       - key: DATABASE_URL
-        value: sqlite:///./mining_pdm.db
+        value: postgresql://user:password@host:port/database
       - key: LOG_LEVEL
         value: info
